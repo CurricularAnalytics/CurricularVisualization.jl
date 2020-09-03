@@ -12,17 +12,22 @@ import HTTP.Messages
 
 export metric_boxplot, metric_histogram, show_homology, visualize
 
+const EMBED_URL = "http://curricula-api-embed.damoursystems.com/"
 const LOCAL_EMBED_PORT = 8156
-const LOCAL_EMBED_FOLDER = joinpath(dirname(pathof(CurricularVisualization)),"..","embed_client","dist")
+const LOCAL_EMBED_FOLDER = joinpath(dirname(pathof(CurricularVisualization)), "..", "embed_client", "dist")
 
-function get_embed_url()
-        local_embed_url = string("http://localhost:", LOCAL_EMBED_PORT)
-        try
-            HTTP.request("GET", local_embed_url)
-        catch
-            serve_local_embed_client()
-        end
-        return local_embed_url
+function get_embed_url(serve_local::Bool)
+    if !serve_local
+        return EMBED_URL
+    end
+
+    local_embed_url = string("http://localhost:", LOCAL_EMBED_PORT)
+    try
+        HTTP.request("GET", local_embed_url)
+    catch
+        serve_local_embed_client()
+    end
+    return local_embed_url
 end
 
 # Serve a local embed client on port 8156
@@ -37,9 +42,9 @@ function serve_local_embed_client()
         # determine / set content type
         content_type = "text/html"
         if (occursin(r".js$", file))          
-        content_type = "application/javascript"
+            content_type = "application/javascript"
         elseif (occursin(r".css$", file))     
-        content_type = "text/css"
+            content_type = "text/css"
         end
         Messages.setheader(req, "Content-Type" => content_type)
 
@@ -141,6 +146,8 @@ Keyword:
 - `changed` : callback function argument, called whenever the curriculum is modified through the interface.
      Default is `nothing`.
 - `notebook` : a Boolean argument, if set to `true`, Blink will not create a new window for the visualization, which allows it to be displayed in the output cell of a Jupyter notebook.
+- `serve_local`: a Boolean argument, if set to `true`, the visualization will be served through localhost; otherwise, a preset remote server (Internet required).
+   Default is `false`.
 - `edit` : a Boolean argument, if set to `true`, the user may edit the curriculum through the visualziation interface. 
    Default is `false`.
 - `output_file` : the relative or absolute path to the CSV file that will store the edited curriculum. Default 
@@ -152,7 +159,7 @@ Keyword:
 - `scale` : a Real value used to scale the size of the output window.
 
 """
-function visualize(curric::Curriculum; changed=nothing, notebook::Bool=false, edit::Bool=false, min_term::Int=1, output_file="edited_curriculum.csv", 
+function visualize(curric::Curriculum; changed=nothing, notebook::Bool=false, serve_local::Bool=false, edit::Bool=false, min_term::Int=1, output_file="edited_curriculum.csv", 
                     show_delay::Bool=true, show_blocking::Bool=true, show_centrality::Bool=true, show_complexity::Bool=true, scale::Real=1)
     num_courses = curric.num_courses
     if num_courses <= 8
@@ -184,7 +191,7 @@ function visualize(curric::Curriculum; changed=nothing, notebook::Bool=false, ed
     end
     term_count = num_courses
     dp = create_degree_plan(curric, bin_filling, max_cpt = max_credits_per_term)
-    viz_helper(dp; changed=changed, notebook=notebook, edit=edit, hide_header=true, output_file=output_file, show_delay=show_delay,
+    viz_helper(dp; changed=changed, notebook=notebook, serve_local=serve_local, edit=edit, hide_header=true, output_file=output_file, show_delay=show_delay,
                 show_blocking=show_blocking, show_centrality=show_centrality, show_complexity=show_complexity, scale=scale)
 end
 
@@ -203,6 +210,8 @@ Keyword:
 - `changed` : callback function argument, called whenever the degree plan is modified through the interface.
      Default is `nothing`.
 - `notebook` : a Boolean argument, if set to `true`, Blink will not create a new window for the visualization, which allows it to be displayed in the output cell of a Jupyter notebook.
+- `serve_local`: a Boolean argument, if set to `true`, the visualization will be served through localhost; otherwise, a preset remote server (Internet required).
+   Default is `false`.
 - `edit` : a Boolean argument, if set to `true`, the user may edit the degree plan through the visualziation interface. 
    Default is `false`.
 - `output_file` : the relative or absolute path to the CSV file that will store the edited degree plan. Default 
@@ -214,14 +223,14 @@ Keyword:
 - `scale` : a Real value used to scale the size of the output window.
 
 """
-function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, edit::Bool=false, output_file="edited_degree_plan.csv", 
+function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, serve_local::Bool=false, edit::Bool=false, output_file="edited_degree_plan.csv", 
                     show_delay::Bool=true, show_blocking::Bool=true, show_centrality::Bool=true, show_complexity::Bool=true, scale::Real=1)
    
-    viz_helper(plan; changed=changed, notebook=notebook, edit=edit,output_file=output_file, show_delay=show_delay,
+    viz_helper(plan; changed=changed, notebook=notebook, serve_local=serve_local, edit=edit,output_file=output_file, show_delay=show_delay,
                 show_blocking=show_blocking, show_centrality=show_centrality, show_complexity=show_complexity, scale=scale)
 end
 
-function viz_helper(plan::DegreePlan; changed, notebook, edit, hide_header=false, output_file, show_delay::Bool, 
+function viz_helper(plan::DegreePlan; changed, notebook, serve_local, edit, hide_header=false, output_file, show_delay::Bool, 
     show_blocking::Bool, show_centrality::Bool, show_complexity::Bool, scale::Real=1)
     if show_delay
         delay_factor(plan.curriculum)
@@ -274,7 +283,7 @@ function viz_helper(plan::DegreePlan; changed, notebook, edit, hide_header=false
         dom"iframe#curriculum"(
             "", 
             # iFrame source
-            src=get_embed_url(),
+            src=get_embed_url(serve_local),
             # iFrame styles
             style=Dict(
                 :width => "100%",
