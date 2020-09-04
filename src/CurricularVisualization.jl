@@ -12,7 +12,7 @@ import HTTP.Messages
 
 export metric_boxplot, metric_histogram, show_homology, visualize
 
-const EMBED_URL = "http://curricula-api-embed.damoursystems.com/"
+const EMBED_URL = "https://curricula-api-embed.damoursystems.com/"
 const LOCAL_EMBED_PORT = 8156
 const LOCAL_EMBED_FOLDER = joinpath(dirname(pathof(CurricularVisualization)), "..", "embed_client", "dist")
 
