@@ -245,9 +245,6 @@ function viz_helper(plan::DegreePlan; changed, notebook, serve_local, edit, hide
         complexity(plan.curriculum)
     end  
 
-    if !Blink.AtomShell.isinstalled() 
-        Blink.AtomShell.install()
-    end
     # Data
     data = prepare_data_for_visualization(plan, edit=edit, hide_header=hide_header, show_delay=show_delay,
                 show_blocking=show_blocking, show_centrality=show_centrality,
