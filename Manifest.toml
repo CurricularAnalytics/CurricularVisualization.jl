@@ -2,7 +2,7 @@
 
 julia_version = "1.11.7"
 manifest_format = "2.0"
-project_hash = "b20d210a4c5927b2c7b8c19849db7596d3ab3d00"
+project_hash = "2c221051da386abe87cb5e4faaa756305aef6579"
 
 [[deps.ANSIColoredPrinters]]
 git-tree-sha1 = "574baf8110975760d391c710b6341da1afa48d8c"
@@ -200,9 +200,9 @@ version = "4.1.1"
 
 [[deps.CurricularAnalytics]]
 deps = ["CSV", "Combinatorics", "DataFrames", "DataStructures", "Dates", "Documenter", "Graphs", "LinearAlgebra", "Markdown", "MetaGraphs", "Printf", "Test"]
-git-tree-sha1 = "630dd52f5ffb964344a4c66d870089d82994f0df"
+git-tree-sha1 = "3ad281b95c0156e515cf05781ab25d0a1f07879b"
 repo-rev = "version_2"
-repo-url = "/Users/heileman/.julia/dev/CurricularAnalytics"
+repo-url = "https://github.com/CurricularAnalytics/CurricularAnalytics.jl"
 uuid = "593ffa3d-269e-5d81-88bc-c3b6809c35a6"
 version = "2.0.0"
 
