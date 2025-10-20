@@ -112,12 +112,12 @@ function prepare_data_for_visualization(degree_plan::DegreePlan; edit::Bool=fals
             end
             current_course["metrics"] = course.metrics
             current_course["nameCanonical"] = course.canonical_name
-            for req in collect(keys(course.requisites))
+            for req in collect(keys(course.requisites[degree_plan.curriculum.requisite_clauses[course.id]]))
                 current_req = Dict{String, Any}()
                 current_req["source_id"] = req
                 current_req["target_id"] = course.id
                 # Parse the Julia requisite type to the required type for the visualization
-                current_req["type"] = requisite_to_string(course.requisites[req])
+                current_req["type"] = requisite_to_string(course.requisites[degree_plan.curriculum.requisite_clauses[course.id]][req])
                 push!(current_course["curriculum_requisites"], current_req)
             end
             push!(current_term["curriculum_items"], current_course)
